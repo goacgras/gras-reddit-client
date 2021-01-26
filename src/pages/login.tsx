@@ -7,6 +7,8 @@ import { Box, Button } from '@chakra-ui/react';
 import { useLoginMutation } from '../generated/graphql';
 import { toErrorMap } from '../utils/toErrorMap';
 import { useRouter } from 'next/router';
+import { withUrqlClient } from 'next-urql';
+import { createUrqlClient } from '../utils/createUrqlClient';
 
 interface registerProps {}
 
@@ -17,7 +19,7 @@ const Login: React.FC<{}> = ({}) => {
     return (
         <Wrapper variant="small">
             <Formik
-                initialValues={{ username: '', password: '' }}
+                initialValues={{ usernameOrEmail: '', password: '' }}
                 onSubmit={async (values, { setErrors }) => {
                     const response = await login(values);
                     // const response = await login({userData: values});
@@ -36,9 +38,9 @@ const Login: React.FC<{}> = ({}) => {
                 {({ isSubmitting }) => (
                     <Form>
                         <InputField
-                            name="username"
-                            placeholder="username"
-                            label="Username"
+                            name="usernameOrEmail"
+                            placeholder="username or email"
+                            label="Username or Email"
                         />
                         <Box mt={5}>
                             <InputField
@@ -63,4 +65,4 @@ const Login: React.FC<{}> = ({}) => {
     );
 };
 
-export default Login;
+export default withUrqlClient(createUrqlClient)(Login);

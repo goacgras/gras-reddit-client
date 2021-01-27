@@ -1,0 +1,9 @@
+# UserResponse comes from server UserResponse they matched!!!
+fragment RegularUserResponse on UserResponse {
+    errors {
+        ...RegularError
+    }
+    user {
+        ...RegularUser
+    }
+}

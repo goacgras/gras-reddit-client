@@ -1,4 +1,4 @@
-import { Box, Button, Flex, Link } from '@chakra-ui/react';
+import { Box, Button, Flex, Heading, Link } from '@chakra-ui/react';
 import React from 'react';
 import NextLink from 'next/link'; // Client side routing
 import { useLogoutMutation, useMeQuery } from '../generated/graphql';
@@ -11,6 +11,7 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
     const [{ data, fetching }] = useMeQuery({
         pause: isServer() // check if is in server
     });
+    // const [{ data, fetching }] = useMeQuery();
 
     let navBarMarkup = null;
     // console.log(data);
@@ -32,10 +33,14 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
         //user is logged in
     } else {
         navBarMarkup = (
-            <Flex>
+            <Flex align="center">
+                <NextLink href="/create-post">
+                    <Button mr={4} as={Link}>
+                        Create Post
+                    </Button>
+                </NextLink>
                 <Box mr="4">{data?.me?.username.toUpperCase()}</Box>
                 <Button
-                    pb="2"
                     variant="link"
                     isLoading={logoutFetching}
                     onClick={() => {
@@ -50,7 +55,14 @@ export const NavBar: React.FC<NavBarProps> = ({}) => {
 
     return (
         <Flex zIndex={1} position="sticky" top={0} bg="tan" p={4}>
-            <Box ml="auto">{navBarMarkup}</Box>
+            <Flex flex={1} m="auto" maxW={800} alignItems="center">
+                <NextLink href="/">
+                    <Link>
+                        <Heading>Gras-Reddit</Heading>
+                    </Link>
+                </NextLink>
+                <Box ml="auto">{navBarMarkup}</Box>
+            </Flex>
         </Flex>
     );
 };

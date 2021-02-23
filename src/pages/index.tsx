@@ -3,54 +3,107 @@ import {
     Button,
     Flex,
     Heading,
+    IconButton,
     Link,
     Stack,
     Text
 } from '@chakra-ui/react';
 import { withUrqlClient } from 'next-urql';
 import { Layout } from '../components/Layout';
-import { usePostsQuery } from '../generated/graphql';
+import {
+    useDeletePostMutation,
+    useMeQuery,
+    usePostsQuery
+} from '../generated/graphql';
 import { createUrqlClient } from '../utils/createUrqlClient';
 import NextLink from 'next/link';
 import React, { useState } from 'react';
 import { UpdootSection } from '../components/UpdootSection';
+import { DeleteIcon, EditIcon } from '@chakra-ui/icons';
 
 const Index = () => {
     const [variables, setVariables] = useState({
         limit: 15,
         cursor: null as null | string
     });
+    const [{ data: meData }] = useMeQuery();
     const [{ data, fetching }] = usePostsQuery({
         variables
     });
+
+    const [, deletePost] = useDeletePostMutation();
 
     if (!fetching && !data) {
         return <div>Something went wrong on your query</div>;
     }
 
+    console.log('Data: ', data);
+
+    // console.log(data?.posts.posts);
+
     return (
         <Layout>
-            <Flex align="center">
-                <Heading>gras-reddit</Heading>
-                <NextLink href="/create-post">
-                    <Link ml="auto">Create Post</Link>
-                </NextLink>
-            </Flex>
-            <br />
             {!data && fetching ? (
                 <div>Loading...</div>
             ) : (
                 <Stack spacing={8}>
-                    {data!.posts.posts.map((post) => (
-                        <Flex key={post.id} p={5} shadow="md" borderWidth="1px">
-                            <UpdootSection post={post} />
-                            <Box my="auto">
-                                <Heading fontSize="xl">{post.title}</Heading>
-                                <Text>posted by {post.creator.username}</Text>
-                                <Text mt={4}>{post.textSnippet}</Text>
-                            </Box>
-                        </Flex>
-                    ))}
+                    {data!.posts.posts.map((post) =>
+                        !post ? null : (
+                            <Flex
+                                key={post.id}
+                                p={5}
+                                shadow="md"
+                                borderWidth="1px"
+                            >
+                                <UpdootSection post={post} />
+                                <Box my="auto">
+                                    <NextLink
+                                        // href={`/post/${encodeURIComponent(
+                                        //     post.id
+                                        // )}`}
+                                        href={{
+                                            pathname: '/post/[id]',
+                                            query: { id: post.id }
+                                        }}
+                                    >
+                                        <Link>
+                                            <Heading fontSize="xl">
+                                                {post.title}
+                                            </Heading>
+                                        </Link>
+                                    </NextLink>
+                                    <Text>
+                                        posted by {post.creator.username}
+                                    </Text>
+                                    <Text mt={4}>{post.textSnippet}</Text>
+                                </Box>
+                                {meData?.me?.id === post.creator.id ? (
+                                    <>
+                                        <NextLink
+                                            href={`/post/edit/${post.id}`}
+                                        >
+                                            <IconButton
+                                                mr={0}
+                                                ml="auto"
+                                                icon={<EditIcon />}
+                                                aria-label="Edit-Post"
+                                            />
+                                        </NextLink>
+                                        <IconButton
+                                            mr={0}
+                                            ml={2}
+                                            icon={<DeleteIcon />}
+                                            aria-label="Delete-Post"
+                                            color="red.500"
+                                            onClick={() => {
+                                                deletePost({ id: post.id });
+                                            }}
+                                        />
+                                    </>
+                                ) : null}
+                            </Flex>
+                        )
+                    )}
                 </Stack>
             )}
             {data && data.posts.hasMore ? (

@@ -1,4 +1,4 @@
-import { cacheExchange, Resolver } from '@urql/exchange-graphcache';
+import { cacheExchange, Resolver, Cache } from '@urql/exchange-graphcache';
 import Router from 'next/router';
 import {
     dedupExchange,
@@ -73,6 +73,15 @@ const cursorPagination = (): Resolver => {
             posts: result
         };
     };
+};
+
+const invalidateAllPosts = (cache: Cache) => {
+    const allFields = cache.inspectFields('Query');
+    const fieldInfos = allFields.filter((info) => info.fieldName === 'posts');
+    //looping paginate items or queries and invalidate all of them
+    fieldInfos.forEach((fi) => {
+        cache.invalidate('Query', 'posts', fi.arguments || {});
+    });
 };
 
 //for ServerSideREndering
@@ -153,18 +162,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                             }
                         },
                         createPost: (_result, args, cache, info) => {
-                            const allFields = cache.inspectFields('Query');
-                            const fieldInfos = allFields.filter(
-                                (info) => info.fieldName === 'posts'
-                            );
-                            //looping paginate items or queries and invalidate all of them
-                            fieldInfos.forEach((fi) => {
-                                cache.invalidate(
-                                    'Query',
-                                    'posts',
-                                    fi.arguments || {}
-                                );
-                            });
+                            invalidateAllPosts(cache);
                         },
                         logout: (_result, args, cache, info) => {
                             betterUpdateQuery<LogoutMutation, MeQuery>(
@@ -189,6 +187,7 @@ export const createUrqlClient = (ssrExchange: any, ctx: any) => {
                                     }
                                 }
                             );
+                            invalidateAllPosts(cache);
                         },
                         register: (_result, args, cache, info) => {
                             betterUpdateQuery<RegisterMutation, MeQuery>(

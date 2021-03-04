@@ -7,14 +7,14 @@ import { Wrapper } from '../../components/Wrapper';
 import { toErrorMap } from '../../utils/toErrorMap';
 import { useChangePasswordMutation } from '../../generated/graphql';
 import { useRouter } from 'next/router';
-import { withUrqlClient } from 'next-urql';
-import { createUrqlClient } from '../../utils/createUrqlClient';
+
 import NextLink from 'next/link';
+import { withApollo } from '../../utils/withApollo';
 
 //TODO Take the token & new password and send to server with mutation
 const ChangePassword: NextPage = () => {
     const router = useRouter();
-    const [, changePassword] = useChangePasswordMutation();
+    const [changePassword] = useChangePasswordMutation();
     const [tokenError, setTokenError] = useState('');
 
     return (
@@ -23,11 +23,13 @@ const ChangePassword: NextPage = () => {
                 initialValues={{ newPassword: '' }}
                 onSubmit={async (values, { setErrors }) => {
                     const response = await changePassword({
-                        newPassword: values.newPassword,
-                        token:
-                            typeof router.query.token === 'string'
-                                ? router.query.token
-                                : ''
+                        variables: {
+                            newPassword: values.newPassword,
+                            token:
+                                typeof router.query.token === 'string'
+                                    ? router.query.token
+                                    : ''
+                        }
                     });
                     if (response.data?.changePassword.errors) {
                         const errorMap = toErrorMap(
@@ -78,4 +80,4 @@ const ChangePassword: NextPage = () => {
     );
 };
 
-export default withUrqlClient(createUrqlClient)(ChangePassword);
+export default withApollo({ ssr: false })(ChangePassword);

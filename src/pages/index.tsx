@@ -7,25 +7,25 @@ import {
     Stack,
     Text
 } from '@chakra-ui/react';
-import { withUrqlClient } from 'next-urql';
 import NextLink from 'next/link';
-import React, { useState } from 'react';
 import { Layout } from '../components/Layout';
 import UpdateAndDeleteButton from '../components/UpdateAndDeleteButton';
 import { UpdootSection } from '../components/UpdootSection';
 import { usePostsQuery } from '../generated/graphql';
-import { createUrqlClient } from '../utils/createUrqlClient';
+// import { isServer } from '../utils/isServer';
+import { withApollo } from '../utils/withApollo';
 
 const Index = () => {
-    const [variables, setVariables] = useState({
-        limit: 15,
-        cursor: null as null | string
-    });
-    const [{ data, error, fetching }] = usePostsQuery({
-        variables
+    const { data, error, loading, fetchMore, variables } = usePostsQuery({
+        variables: {
+            limit: 15,
+            cursor: null
+        },
+        //for loading
+        notifyOnNetworkStatusChange: true
     });
 
-    if (!fetching && !data) {
+    if (!loading && !data) {
         return (
             <div>
                 <div>Something went wrong on your query</div>
@@ -34,13 +34,13 @@ const Index = () => {
         );
     }
 
-    console.log('Data: ', data);
+    // console.log('Data: ', data);
 
     // console.log(data?.posts.posts);
 
     return (
         <Layout>
-            {!data && fetching ? (
+            {!data && loading ? (
                 <div>Loading...</div>
             ) : (
                 <Stack spacing={8}>
@@ -90,15 +90,42 @@ const Index = () => {
                 <Flex>
                     <Button
                         onClick={() => {
-                            setVariables({
-                                limit: variables.limit,
-                                cursor:
-                                    data.posts.posts[
-                                        data.posts.posts.length - 1
-                                    ].createdAt
+                            fetchMore({
+                                variables: {
+                                    limit: variables?.limit,
+                                    cursor:
+                                        data.posts.posts[
+                                            data.posts.posts.length - 1
+                                        ].createdAt
+                                }
+                                //when click loadmore, it updates postsQuery
+                                //stick the newPosts to prevPosts
+                                // updateQuery: (
+                                //     prevPosts,
+                                //     { fetchMoreResult }
+                                // ): PostsQuery => {
+                                //     if (!fetchMoreResult) {
+                                //         return prevPosts as PostsQuery;
+                                //     }
+
+                                //     return {
+                                //         __typename: 'Query',
+                                //         posts: {
+                                //             __typename: 'PaginatedPosts',
+                                //             hasMore: (fetchMoreResult as PostsQuery)
+                                //                 .posts.hasMore,
+                                //             posts: [
+                                //                 ...(prevPosts as PostsQuery)
+                                //                     .posts.posts,
+                                //                 ...(fetchMoreResult as PostsQuery)
+                                //                     .posts.posts
+                                //             ]
+                                //         }
+                                //     };
+                                // }
                             });
                         }}
-                        isLoading={fetching}
+                        isLoading={loading}
                         m="auto"
                         my={8}
                     >
@@ -110,4 +137,4 @@ const Index = () => {
     );
 };
 
-export default withUrqlClient(createUrqlClient, { ssr: true })(Index);
+export default withApollo({ ssr: true })(Index);

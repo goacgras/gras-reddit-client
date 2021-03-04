@@ -1,9 +1,11 @@
 import { ChakraProvider, ColorModeProvider } from '@chakra-ui/react';
 
 import theme from '../theme';
+// import { ApolloProvider } from '@apollo/client';
 
 function MyApp({ Component, pageProps }: any) {
     return (
+        // <ApolloProvider client={client}>
         <ChakraProvider resetCSS theme={theme}>
             <ColorModeProvider
                 options={{
@@ -13,6 +15,7 @@ function MyApp({ Component, pageProps }: any) {
                 <Component {...pageProps} />
             </ColorModeProvider>
         </ChakraProvider>
+        // </ApolloProvider>
     );
 }
 

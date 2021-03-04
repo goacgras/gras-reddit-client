@@ -13,8 +13,8 @@ const UpdateAndDeleteButton: React.FC<UpdateAndDeleteButtonProps> = ({
     postId,
     creatorId
 }) => {
-    const [{ data: meData }] = useMeQuery();
-    const [, deletePost] = useDeletePostMutation();
+    const { data: meData } = useMeQuery();
+    const [deletePost] = useDeletePostMutation();
 
     if (meData?.me?.id !== creatorId) {
         return null;
@@ -37,7 +37,7 @@ const UpdateAndDeleteButton: React.FC<UpdateAndDeleteButtonProps> = ({
                 aria-label="Delete-Post"
                 color="red.500"
                 onClick={() => {
-                    deletePost({ id: postId });
+                    deletePost({ variables: { id: postId } });
                 }}
             />
         </Box>

@@ -9,7 +9,7 @@ import {
 } from '@chakra-ui/react';
 import NextLink from 'next/link';
 import { Layout } from '../components/Layout';
-import UpdateAndDeleteButton from '../components/UpdateAndDeleteButton';
+import { UpdateAndDeleteButton } from '../components/UpdateAndDeleteButton';
 import { UpdootSection } from '../components/UpdootSection';
 import { usePostsQuery } from '../generated/graphql';
 // import { isServer } from '../utils/isServer';
@@ -34,7 +34,7 @@ const Index = () => {
         );
     }
 
-    // console.log('Data: ', data);
+    console.log('Data: ', data);
 
     // console.log(data?.posts.posts);
 
@@ -44,7 +44,7 @@ const Index = () => {
                 <div>Loading...</div>
             ) : (
                 <Stack spacing={8}>
-                    {data!.posts.posts.map((post) =>
+                    {data?.posts.posts.map((post) =>
                         !post ? null : (
                             <Flex
                                 key={post.id}

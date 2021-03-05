@@ -19,6 +19,7 @@ export type Query = {
   posts: PaginatedPosts;
   post?: Maybe<Post>;
   me?: Maybe<User>;
+  anotherMe?: Maybe<User>;
   users: Array<User>;
 };
 
@@ -279,6 +280,17 @@ export type VoteMutationVariables = Exact<{
 export type VoteMutation = (
   { __typename?: 'Mutation' }
   & Pick<Mutation, 'vote'>
+);
+
+export type AnotherMeQueryVariables = Exact<{ [key: string]: never; }>;
+
+
+export type AnotherMeQuery = (
+  { __typename?: 'Query' }
+  & { anotherMe?: Maybe<(
+    { __typename?: 'User' }
+    & RegularUserFragment
+  )> }
 );
 
 export type MeQueryVariables = Exact<{ [key: string]: never; }>;
@@ -658,6 +670,38 @@ export function useVoteMutation(baseOptions?: Apollo.MutationHookOptions<VoteMut
 export type VoteMutationHookResult = ReturnType<typeof useVoteMutation>;
 export type VoteMutationResult = Apollo.MutationResult<VoteMutation>;
 export type VoteMutationOptions = Apollo.BaseMutationOptions<VoteMutation, VoteMutationVariables>;
+export const AnotherMeDocument = gql`
+    query AnotherMe {
+  anotherMe {
+    ...RegularUser
+  }
+}
+    ${RegularUserFragmentDoc}`;
+
+/**
+ * __useAnotherMeQuery__
+ *
+ * To run a query within a React component, call `useAnotherMeQuery` and pass it any options that fit your needs.
+ * When your component renders, `useAnotherMeQuery` returns an object from Apollo Client that contains loading, error, and data properties
+ * you can use to render your UI.
+ *
+ * @param baseOptions options that will be passed into the query, supported options are listed on: https://www.apollographql.com/docs/react/api/react-hooks/#options;
+ *
+ * @example
+ * const { data, loading, error } = useAnotherMeQuery({
+ *   variables: {
+ *   },
+ * });
+ */
+export function useAnotherMeQuery(baseOptions?: Apollo.QueryHookOptions<AnotherMeQuery, AnotherMeQueryVariables>) {
+        return Apollo.useQuery<AnotherMeQuery, AnotherMeQueryVariables>(AnotherMeDocument, baseOptions);
+      }
+export function useAnotherMeLazyQuery(baseOptions?: Apollo.LazyQueryHookOptions<AnotherMeQuery, AnotherMeQueryVariables>) {
+          return Apollo.useLazyQuery<AnotherMeQuery, AnotherMeQueryVariables>(AnotherMeDocument, baseOptions);
+        }
+export type AnotherMeQueryHookResult = ReturnType<typeof useAnotherMeQuery>;
+export type AnotherMeLazyQueryHookResult = ReturnType<typeof useAnotherMeLazyQuery>;
+export type AnotherMeQueryResult = Apollo.QueryResult<AnotherMeQuery, AnotherMeQueryVariables>;
 export const MeDocument = gql`
     query Me {
   me {

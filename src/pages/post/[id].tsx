@@ -1,6 +1,6 @@
 import { Box, Heading } from '@chakra-ui/react';
 import { Layout } from '../../components/Layout';
-import UpdateAndDeleteButton from '../../components/UpdateAndDeleteButton';
+import { UpdateAndDeleteButton } from '../../components/UpdateAndDeleteButton';
 import { useGetPostFromUrl } from '../../utils/useGetPostFromUrl';
 import { withApollo } from '../../utils/withApollo';
 
